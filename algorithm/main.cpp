@@ -5,6 +5,8 @@
 #include <planner/bfs.h>
 #include <planner/a_star.h>
 
+#include <controller/control.h>
+
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -27,6 +29,13 @@ int main() {
     auto planner = A_Star(map);
     planner.plan_with_waypoints(waypoints);
     std::vector<std::vector<int>> route = planner.get_waypoints_path();
+
+    std::vector<int> cpoint = {130, 64};
+
+    auto purepursuit = PurePursuit(route, 10.0, cpoint, 2.7, 0.1, 2.0);
+    purepursuit.purepursuit_control();
+
+    std::vector<std::vector<int>> control_path = purepursuit.getTrajectory();
 
     // Only for drawing
     std::cout << "Draw Map" << std::endl;
@@ -61,22 +70,16 @@ int main() {
     plt::imshow(&image_data[0], map_height, map_width, 1);
 
     // Draw global path : reverse mode
-    for (size_t step = 0; step < route.size(); step += 5) {
-        std::vector<int> path_x;
-        std::vector<int> path_y;
+    std::vector<int> path_x;
+    std::vector<int> path_y;
 
-        for (size_t i = 0; i <= step; ++i) {
-            path_x.push_back(route[i][0]);
-            path_y.push_back(route[i][1]);
-        }
-
-        plt::plot(path_x, path_y, "r-");
-        plt::pause(0.01);
-        plt::clf();
-
-        plt::imshow(&image_data[0], map_height, map_width, 1);
+    for (const auto& waypoint : route) {
+        path_x.push_back(waypoint[0]);
+        path_y.push_back(waypoint[1]);
     }
 
+    plt::imshow(&image_data[0], map_height, map_width, 1);
+    plt::plot(path_x, path_y, "r-");
     plt::show();
 
     return 0;

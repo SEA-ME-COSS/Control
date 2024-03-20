@@ -27,6 +27,7 @@ include_directories(
     planner
     utils
     visual
+    controller
 )
 
 # Add executable with all relevant source files
