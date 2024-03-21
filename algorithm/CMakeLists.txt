@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(PathPlanning VERSION 1.0 LANGUAGES CXX)
+project(Control VERSION 1.0 LANGUAGES CXX)
 
 # Set the C++ standard to C++20
 set(CMAKE_CXX_STANDARD 20)

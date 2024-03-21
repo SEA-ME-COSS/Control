@@ -30,12 +30,13 @@ int main() {
     planner.plan_with_waypoints(waypoints);
     std::vector<std::vector<int>> route = planner.get_waypoints_path();
 
-    std::vector<int> cpoint = {130, 64};
+    std::vector<int> cpoint = {130, 64, 0};
 
-    auto purepursuit = PurePursuit(route, 10.0, cpoint, 2.7, 0.1, 2.0);
+    auto purepursuit = PurePursuit(route, 20.0, cpoint, 2.7, 0.5, 4.0);
     purepursuit.purepursuit_control();
 
     std::vector<std::vector<int>> control_path = purepursuit.getTrajectory();
+    std::vector<int> target_nodes = purepursuit.getTargetnode();
 
     // Only for drawing
     std::cout << "Draw Map" << std::endl;
@@ -78,8 +79,33 @@ int main() {
         path_y.push_back(waypoint[1]);
     }
 
-    plt::imshow(&image_data[0], map_height, map_width, 1);
-    plt::plot(path_x, path_y, "r-");
+    for(size_t i = 0; i < control_path.size(); i += 5) {
+
+        plt::clf();
+        plt::imshow(&image_data[0], map_height, map_width, 1);
+
+        // Show path
+        plt::plot(path_x, path_y, "r-");
+
+        // Show Control
+        if(i < control_path.size()) {
+            std::vector<int> path_x = {control_path[i][0]};
+            std::vector<int> path_y = {control_path[i][1]};
+            plt::plot(path_x, path_y, "bo");
+        }
+
+        // if(i < target_nodes.size()) {
+        //     int target_node_index = target_nodes[i];
+        //     if(target_node_index < route.size()) {
+        //         std::vector<int> target_x = {route[target_node_index][0]};
+        //         std::vector<int> target_y = {route[target_node_index][1]};
+        //         plt::plot(target_x, target_y, "go"); // 목표 노드는 초록색으로
+        //     }
+        // }
+
+        plt::pause(0.01);
+    }
+
     plt::show();
 
     return 0;
