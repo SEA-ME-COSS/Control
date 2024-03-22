@@ -2,6 +2,8 @@
 
 #include "msg_structs.h"
 
+#include "controller/pure_pursuit.hpp"
+
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "std_msgs/msg/int8.hpp"
@@ -22,6 +24,8 @@ public:
     Control();
 
 private:
+    PurePursuit controller;
+
     std::vector<Pose> refPoses;
     Pose currPose;
     int currVel;

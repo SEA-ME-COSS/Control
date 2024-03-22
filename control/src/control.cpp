@@ -6,8 +6,8 @@ Control::Control() : rclcpp::Node("vehicle_control") {
         "/planner/path", 10, std::bind(&Control::path_callback, this,  std::placeholders::_1));
     velocity_subscription_ = this->create_subscription<std_msgs::msg::Int8>(
         "/planner/velocity", 10, std::bind(&Control::velocity_callback, this,  std::placeholders::_1));
-    // pose_subscription_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-    //     "/localization/pose", 10, std::bind(&Control::pose_callback, this,  std::placeholders::_1));
+    pose_subscription_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+        "/localization/pose", 10, std::bind(&Control::pose_callback, this,  std::placeholders::_1));
     
     // Publish
     drive_publisher_ = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(
@@ -25,10 +25,9 @@ void Control::path_callback(const nav_msgs::msg::Path::SharedPtr path_msg) {
     for (size_t i = 0; i < path_msg->poses.size(); ++i) {
         refPose.x = path_msg->poses[i].pose.position.x;
         refPose.y = path_msg->poses[i].pose.position.y;
-        refPose.heading = this->quat_to_yaw(path_msg->poses[i].pose.orientation);
+        // refPose.heading = this->quat_to_yaw(path_msg->poses[i].pose.orientation);
         this->refPoses.push_back(refPose);
     }
-    // this->controller.resetIndex(0);
 }
 
 void Control::velocity_callback(const std_msgs::msg::Int8::SharedPtr velocity_msg) {
@@ -39,23 +38,27 @@ void Control::velocity_callback(const std_msgs::msg::Int8::SharedPtr velocity_ms
     this->velocityValid = true;
 }
 
-// void Control::pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr pose_msg) {
-//     this->poseValid = false;
-//     this->currPose.x = pose_msg->pose.position.x;
-//     this->currPose.y = pose_msg->pose.position.y;
-//     this->currPose.heading = this->quat_to_yaw(pose_msg->pose.orientation);
-//     this->poseValid = true;
-// }
+void Control::pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr pose_msg) {
+    this->poseValid = false;
+    this->currPose.x = pose_msg->pose.position.x;
+    this->currPose.y = pose_msg->pose.position.y;
+    this->currPose.heading = this->quat_to_yaw(pose_msg->pose.orientation);
+    this->poseValid = true;
+}
 
 void Control::publisher_timer_callback() {
-    // if (this->refPoses.empty() || !this->poseValid || !this->velocityValid) {return;}
+    if (this->refPoses.empty() || !this->poseValid || !this->velocityValid) {return;}
 
-    // // this->controller.calculateControl(refPoses, currPose, currVel, currDirection);
-    // this->speedCommand = this->controller.getSpeedCommand();
-    // this->steerCommand = - this->controller.getSteerCommand() * 180 / M_PI;
-    // // this->steerCommand = 0.5*this->controller.getSteerCommand() + 0.5*this->steerCommand;
+    path_callback();
+    velocity_callback();
+    pose_callback();
 
-    // this->publish_drive(this->speedCommand, this->steerCommand);
+    this->controller.purepursuit_control(this->currPose.x, this->currPose.y, this->currPose.heading, this->v);
+
+    this->speedCommand = this->controller.getThrottle();
+    this->steerCommand = - this->controller.getDelta() * 180 / M_PI;
+
+    this->publish_drive(this->speedCommand, this->steerCommand);
 }
 
 void Control::publish_drive(float speed, float steer) {
