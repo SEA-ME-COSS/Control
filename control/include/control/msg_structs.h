@@ -2,9 +2,15 @@
 
 #include <string>
 
+struct Path {
+    float x;
+    float y;
+    float yaw;
+};
+
 struct Pose {
     float x;
     float y;
-    float heading;
+    float yaw;
     float v;
 };

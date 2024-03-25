@@ -5,16 +5,15 @@
 #include "controller/pure_pursuit.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-#include "nav_msgs/msg/path.hpp"
 #include "std_msgs/msg/int8.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-// #include "nav_msgs/msg/odometry.hpp"
+#include "nav_msgs/msg/path.hpp"
+#include "nav_msgs/msg/odometry.hpp"
+#include "example_interfaces/msg/float64.hpp"
 
-#include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
 #include "tf2/LinearMath/Quaternion.h"
-#include <tf2/LinearMath/Matrix3x3.h>
-#include <tf2/convert.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "tf2/LinearMath/Matrix3x3.h"
+#include "tf2/convert.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 #include <string>
 #include <cmath>
@@ -26,28 +25,31 @@ public:
 private:
     PurePursuit controller;
 
-    std::vector<Pose> refPoses;
+    std::vector<Path> refPoses;
     Pose currPose;
-    int currVel;
-    bool currDirection;
     
     float speedCommand;
     float steerCommand;
 
-    bool velocityValid;
+    bool pathValid;
     bool poseValid;
+    bool velocityValid;
 
-    rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr drive_publisher_;
+    float target_velocity;
+
+    // Subscribe
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr path_subscription_;
-    rclcpp::Subscription<std_msgs::msg::Int8>::SharedPtr velocity_subscription_;
-    rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_subscription_;
-    // rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr pose_subscription_;
+    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr pose_subscription_;
+    rclcpp::Subscription<example_interfaces::msg::Float64>::SharedPtr velocity_subscription_;
+
+    // Publish
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr drive_publisher_;
+
     rclcpp::TimerBase::SharedPtr publisher_timer_;
 
     void path_callback(const nav_msgs::msg::Path::SharedPtr path_msg);
-    void velocity_callback(const std_msgs::msg::Int8::SharedPtr velocity_msg);
-    void pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr pose_msg);
-    // void pose_callback(const nav_msgs::msg::Odometry::SharedPtr pose_msg);
+    void pose_callback(const nav_msgs::msg::Odometry::SharedPtr pose_msg);
+    void velocity_callback(const example_interfaces::msg::Float64::SharedPtr velocity_msg);
     void publisher_timer_callback();
     void publish_drive(float speed, float steer);
     float quat_to_yaw(const geometry_msgs::msg::Quaternion quat_msg);

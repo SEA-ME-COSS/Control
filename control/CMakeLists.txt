@@ -24,6 +24,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(ackermann_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(example_interfaces REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -48,8 +49,9 @@ include_directories(
 add_executable(${PROJECT_NAME}
   src/main.cpp
   src/control.cpp
+  src/controller/pure_pursuit.cpp
 )
-ament_target_dependencies(${PROJECT_NAME} rclcpp nav_msgs ackermann_msgs tf2 tf2_geometry_msgs)
+ament_target_dependencies(${PROJECT_NAME} rclcpp nav_msgs ackermann_msgs tf2 tf2_geometry_msgs example_interfaces)
 
 install(TARGETS
   ${PROJECT_NAME}

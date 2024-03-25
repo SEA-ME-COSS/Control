@@ -1,16 +1,18 @@
 #pragma once
 
+#include "msg_structs.h"
+
 #include <array>
 #include <cmath>
 #include <iostream>
-#include <unistd.h>
+#include <vector>
 
 class PurePursuit {
 
 public:
-    PurePursuit(std::vector<std::vector<int>> route, double speed, std::vector<int> cpoint, double WB, double Kdd, double Ldc);
+    PurePursuit(double WB, double Kdd, double Ldc);
 
-    void purepursuit_control();
+    void purepursuit_control(std::vector<Path> refPoses, double target_v, double x, double y, double yaw, double v);
 
     double getThrottle();
     double getDelta();
@@ -45,7 +47,7 @@ private:
     double delta;
 
     // Path
-    std::vector<std::vector<double>> route;
+    std::vector<Path> refPoses;
     int route_size;
 
     // Target Status
@@ -56,5 +58,5 @@ private:
     double purepursuit_steer_calc();
     int update_target_node();
     void update_state(double x, double y, double yaw, double v);
-    double calc_distance(int point_x, int point_y);
+    double calc_distance(double point_x, double point_y);
 };
