@@ -59,4 +59,5 @@ private:
     int update_target_node();
     void update_state(double x, double y, double yaw, double v);
     double calc_distance(double point_x, double point_y);
+    void purepursuit_throttle_calc();
 };

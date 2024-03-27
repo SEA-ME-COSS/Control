@@ -94,14 +94,14 @@ int main() {
             plt::plot(path_x, path_y, "bo");
         }
 
-        // if(i < target_nodes.size()) {
-        //     int target_node_index = target_nodes[i];
-        //     if(target_node_index < route.size()) {
-        //         std::vector<int> target_x = {route[target_node_index][0]};
-        //         std::vector<int> target_y = {route[target_node_index][1]};
-        //         plt::plot(target_x, target_y, "go"); // 목표 노드는 초록색으로
-        //     }
-        // }
+        if(i < target_nodes.size()) {
+            int target_node_index = target_nodes[i];
+            if(target_node_index < route.size()) {
+                std::vector<int> target_x = {route[target_node_index][0]};
+                std::vector<int> target_y = {route[target_node_index][1]};
+                plt::plot(target_x, target_y, "go"); // 목표 노드는 초록색으로
+            }
+        }
 
         plt::pause(0.01);
     }

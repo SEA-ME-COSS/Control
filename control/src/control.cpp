@@ -1,6 +1,6 @@
 #include "control.h"
 
-Control::Control() : rclcpp::Node("vehicle_control"), controller(2.7, 0.5, 4.0) {
+Control::Control() : rclcpp::Node("vehicle_control"), controller(15, 0.5, 10.0) {
     // this->controller = PurePursuit(2.7, 0.5, 4.0);
 
     // Subscribe
@@ -28,7 +28,7 @@ void Control::path_callback(const nav_msgs::msg::Path::SharedPtr path_msg) {
     for (size_t i = 0; i < path_msg->poses.size(); ++i) {
         refPose.x = path_msg->poses[i].pose.position.x;
         refPose.y = path_msg->poses[i].pose.position.y;
-        refPose.yaw = this->quat_to_yaw(path_msg->poses[i].pose.orientation);
+        // refPose.yaw = this->quat_to_yaw(path_msg->poses[i].pose.orientation);
         this->refPoses.push_back(refPose);
     }
     this->pathValid = true;
@@ -42,8 +42,8 @@ void Control::velocity_callback(const example_interfaces::msg::Float64::SharedPt
 
 void Control::pose_callback(const nav_msgs::msg::Odometry::SharedPtr pose_msg) {
     this->poseValid = false;
-    this->currPose.x = pose_msg->pose.pose.position.x * 100;  // [cm]
-    this->currPose.y = pose_msg->pose.pose.position.y * 100;  // [cm]
+    this->currPose.x = pose_msg->pose.pose.position.x * 100 + 22.656;  // [cm]
+    this->currPose.y = pose_msg->pose.pose.position.y * 100 + 47.281;  // [cm]
     
     tf2::Quaternion q(
       pose_msg->pose.pose.orientation.x,
@@ -56,17 +56,18 @@ void Control::pose_callback(const nav_msgs::msg::Odometry::SharedPtr pose_msg) {
     this->currPose.yaw = yaw;
 
     this->currPose.v = sqrt(pow(pose_msg->twist.twist.linear.x, 2)
-                        + pow(pose_msg->twist.twist.linear.y, 2)) * 100;  // [cm/s]
+                        + pow(pose_msg->twist.twist.linear.y, 2)) * 5;  // [cm/s]
     this->poseValid = true;
 }
 
 void Control::publisher_timer_callback() {
-    if (this->refPoses.empty() || !this->poseValid || !this->pathValid) {return;}
+    if (this->refPoses.empty() || !this->poseValid || !this->pathValid) { std::cout << "Message Receive Error" << std::endl; return;}
 
     this->controller.purepursuit_control(this->refPoses, this->target_velocity, this->currPose.x, this->currPose.y, this->currPose.yaw, this->currPose.v);
 
     this->speedCommand = this->controller.getThrottle();
-    this->steerCommand = - this->controller.getDelta() * 180 / M_PI;
+    // this->steerCommand = - this->controller.getDelta() * 180 / M_PI;
+    this->steerCommand = this->controller.getDelta();
 
     this->publish_drive(this->speedCommand, this->steerCommand);
 }
@@ -75,7 +76,7 @@ void Control::publish_drive(float speed, float steer) {
     auto drive_msg = std::make_unique<geometry_msgs::msg::Twist>();
     drive_msg->linear.x = speed;
     drive_msg->angular.z = steer;
-    std::cout << "Throttle : " << speed << " Steering : " << steer << std::endl;
+    std::cout << "Publish Throttle : " << speed << " Publish Steering : " << steer << std::endl;
     this->drive_publisher_->publish(std::move(drive_msg));
 }
 

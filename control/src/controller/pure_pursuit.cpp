@@ -36,10 +36,13 @@ PurePursuit::PurePursuit(double WB, double Kdd, double Ldc) {
 void PurePursuit::purepursuit_control(std::vector<Path> refPoses, double target_v, double x, double y, double yaw, double v) {
     this->target_speed = target_v;
     this->refPoses = refPoses;
-    this->acceleration = this->pid_speed_control();
-    this->delta = this->purepursuit_steer_calc();
-    this->target_node = this->update_target_node();
     this->update_state(x, y, yaw, v);
+    std::cout << "Current Speed : " << this->v << " Current accerleration : " << this->acceleration << std::endl;
+    this->acceleration = this->pid_speed_control();
+    this->target_node = this->update_target_node();
+    this->delta = this->purepursuit_steer_calc();
+    this->purepursuit_throttle_calc();
+    std::cout << "After Speed : " << this->v << " After accerleration : " << this->acceleration << std::endl;
 }
 
 double PurePursuit::pid_speed_control() {
@@ -60,10 +63,15 @@ double PurePursuit::purepursuit_steer_calc() {
     // double tyaw = refPoses[this->target_node].yaw;
 
     double alpha = atan2(ty - this->rear_y, tx - this->rear_x) - this->yaw;
-    double delta = atan2(2.0 * this->WB * sin(alpha)/this->Ld, 1.0);
+    double delta = atan2(2.0 * this->WB * sin(alpha)/this->Ld, 1.0); // rad
 
     return delta;
 }
+
+void PurePursuit::purepursuit_throttle_calc() {
+    this->v += this->acceleration * this->dt;
+    // std::cout << "Accerleration : " << this->acceleration << " V: " << this->v << std::endl;
+} 
 
 int PurePursuit::update_target_node() {
     int cnode = this->target_node;
@@ -98,8 +106,8 @@ void PurePursuit::update_state(double x, double y, double yaw, double v) {
     this->yaw = yaw;
     this->v = v;
 
-    rear_x = x - ((WB / 2) * cos(yaw));
-    rear_y = y - ((WB / 2) * sin(yaw));
+    this->rear_x = x - ((WB / 2) * cos(yaw));
+    this->rear_y = y - ((WB / 2) * sin(yaw));
 }
 
 double PurePursuit::calc_distance(double point_x, double point_y) {
