@@ -1,68 +1,6 @@
-#pragma once
+#include "controller/pure_pursuit.hpp"
 
-#include <array>
-#include <cmath>
-#include <iostream>
-#include <unistd.h>
-
-class PurePursuit {
-
-public:
-    PurePursuit(std::vector<std::vector<int>> route, double speed, std::vector<int> cpoint, double WB, double Kdd, double Ldc);
-
-    void purepursuit_control();
-
-    std::vector<std::vector<int>> getTrajectory();
-    std::vector<int> getTargetnode();
-
-private:
-    // Vehicle State
-    int x;
-    int y;
-    double yaw;
-    double v;
-    double acceleration;
-
-    int rear_x;
-    int rear_y;
-    double WB;
-
-    // PID 
-    double pid_integral;
-    double previous_error;
-    double kp;
-    // double ki;
-    // double kd;
-
-    double dt;
-
-    // Target Node Searching
-    double Ld;
-    double Kdd;
-    double Ldc;
-
-    // purepursuit
-    double delta;
-
-    // Path
-    std::vector<std::vector<int>> route;
-    int route_size;
-
-    // Target Status
-    double target_speed;
-    int target_node;
-
-    std::vector<std::vector<int>> trajectory;
-    std::vector<int> target_nodes;
-
-    double pid_speed_control();
-    double purepursuit_steer_calc();
-    int update_target_node();
-    void update_state();
-    double calc_distance(int point_x, int point_y);
-};
-
-PurePursuit::PurePursuit(std::vector<std::vector<int>> route, double speed, std::vector<int> cpoint, double WB, double Kdd, double Ldc) {
+PurePursuit::PurePursuit(std::vector<std::vector<double>> route, double speed, std::vector<double> cpoint, double WB, double Kdd, double Ldc) {
     // Vehicle Status Init
     this->x = cpoint[0];
     this->y = cpoint[1];
@@ -122,8 +60,8 @@ double PurePursuit::pid_speed_control() {
 }
 
 double PurePursuit::purepursuit_steer_calc() {
-    int tx = route[this->target_node][0];
-    int ty = route[this->target_node][1];
+    double tx = route[this->target_node][0];
+    double ty = route[this->target_node][1];
 
     double alpha = atan2(ty - this->rear_y, tx - this->rear_x) - this->yaw;
     double delta = atan2(2.0 * this->WB * sin(alpha)/this->Ld, 1.0);
@@ -171,14 +109,14 @@ void PurePursuit::update_state() {
     target_nodes.push_back(target_node);
 }
 
-double PurePursuit::calc_distance(int point_x, int point_y) {
+double PurePursuit::calc_distance(double point_x, double point_y) {
     double dx = this->rear_x - point_x;
     double dy = this->rear_y - point_y;
     
     return sqrt(dx * dx + dy * dy);
 }
 
-std::vector<std::vector<int>> PurePursuit::getTrajectory() {
+std::vector<std::vector<double>> PurePursuit::getTrajectory() {
     return trajectory;
 }
 
