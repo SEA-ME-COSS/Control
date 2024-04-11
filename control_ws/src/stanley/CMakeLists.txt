@@ -6,9 +6,9 @@ if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)
 endif()
 
-# Default to C++14
+# Default to C++20
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 20)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -17,9 +17,12 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(example_interfaces REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -33,3 +36,27 @@ if(BUILD_TESTING)
 endif()
 
 ament_package()
+
+include_directories(
+  include/${PROJECT_NAME}
+)
+
+add_executable(${PROJECT_NAME}
+  src/main.cpp
+  src/control.cpp
+  src/controller/stanley.cpp
+)
+
+ament_target_dependencies(${PROJECT_NAME} 
+  rclcpp
+  nav_msgs 
+  tf2 
+  tf2_geometry_msgs 
+  geometry_msgs 
+  example_interfaces
+)
+
+install(TARGETS
+  ${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME}
+)
