@@ -48,11 +48,12 @@ int main() {
     std::vector<std::vector<double>> route = planner.get_route();
 
     std::vector<double> cpoint = {130.0, 64.0, 0};
+    double speed = 20.0;
     double WB = 16/resolution;
     double Kdd = 1.8/resolution;
     double Ldc = 5/resolution;
 
-    auto purepursuit = PurePursuit(route, 20.0, cpoint, WB, Kdd, Ldc);
+    auto purepursuit = PurePursuit(route, speed, cpoint, WB, Kdd, Ldc);
     purepursuit.purepursuit_control();
 
     std::vector<std::vector<double>> control_path = purepursuit.getTrajectory();
