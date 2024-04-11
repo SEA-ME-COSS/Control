@@ -3,6 +3,7 @@
 #include "hybrid-a-star/a_star.hpp"
 
 #include "controller/pure_pursuit.hpp"
+#include "controller/stanley.hpp"
 
 #include "utils/matplotlibcpp.h"
 #include "utils/loader.hpp"
@@ -48,16 +49,25 @@ int main() {
     std::vector<std::vector<double>> route = planner.get_route();
 
     std::vector<double> cpoint = {130.0, 64.0, 0};
-    double speed = 20.0;
+    double speed = 5.0/resolution;
     double WB = 16/resolution;
-    double Kdd = 1.8/resolution;
-    double Ldc = 5/resolution;
+    double Kdd = 5/resolution;
+    double Ldc = 8/resolution;
 
-    auto purepursuit = PurePursuit(route, speed, cpoint, WB, Kdd, Ldc);
-    purepursuit.purepursuit_control();
+    // auto purepursuit = PurePursuit(route, speed, cpoint, WB, Kdd, Ldc);
+    // purepursuit.purepursuit_control();
 
-    std::vector<std::vector<double>> control_path = purepursuit.getTrajectory();
-    std::vector<int> target_nodes = purepursuit.getTargetnode();
+    // std::vector<std::vector<double>> control_path = purepursuit.getTrajectory();
+    // std::vector<int> target_nodes = purepursuit.getTargetnode();
+
+    double k = 0.2;
+    double ks = 1.0;
+
+    auto stanley = Stanley(route, resolution, speed, cpoint, k, ks);
+    stanley.stanley_control();
+
+    std::vector<std::vector<double>> control_path = stanley.getTrajectory();
+    std::vector<int> target_nodes = stanley.getTargetnode();
 
     // // Only for drawing
     std::cout << "Draw Map" << std::endl;

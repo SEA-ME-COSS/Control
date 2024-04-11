@@ -41,8 +41,8 @@ PurePursuit::PurePursuit(std::vector<std::vector<double>> route, double speed, s
 void PurePursuit::purepursuit_control() {
     while(this->target_node != this->route_size-1) {
         this->acceleration = this->pid_speed_control();
-        this->delta = this->purepursuit_steer_calc();
         this->target_node = this->update_target_node();
+        this->delta = this->purepursuit_steer_calc();
         this->update_state();
     }
 }
