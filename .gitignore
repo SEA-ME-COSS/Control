@@ -2,4 +2,5 @@ build
 .vscode
 .DStore
 log
+install
 

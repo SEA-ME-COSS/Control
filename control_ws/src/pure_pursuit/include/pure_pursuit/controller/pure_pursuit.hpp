@@ -1,6 +1,6 @@
 #pragma once
 
-#include "msg_structs.h"
+#include "utils/msg_structs.h"
 
 #include <array>
 #include <cmath>
@@ -11,6 +11,9 @@ class PurePursuit {
 
 public:
     PurePursuit(double WB, double Kdd, double Ldc);
+
+    PurePursuit();
+    ~PurePursuit();
 
     void purepursuit_control(std::vector<Path> refPoses, double target_v, double x, double y, double yaw, double v);
 

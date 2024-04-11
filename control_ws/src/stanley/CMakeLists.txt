@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(control)
+project(stanley)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -17,14 +17,6 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(ackermann_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(example_interfaces REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -41,18 +33,3 @@ if(BUILD_TESTING)
 endif()
 
 ament_package()
-
-include_directories(
-  include/${PROJECT_NAME}
-  )
-
-add_executable(${PROJECT_NAME}
-  src/main.cpp
-  src/control.cpp
-  src/controller/pure_pursuit.cpp
-)
-ament_target_dependencies(${PROJECT_NAME} rclcpp nav_msgs ackermann_msgs tf2 tf2_geometry_msgs example_interfaces)
-
-install(TARGETS
-  ${PROJECT_NAME}
-  DESTINATION lib/${PROJECT_NAME})

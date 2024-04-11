@@ -1,4 +1,4 @@
-#include "control.h"
+#include "control.hpp"
 
 int main(int argc, char * argv[])
 {

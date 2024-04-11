@@ -33,6 +33,10 @@ PurePursuit::PurePursuit(double WB, double Kdd, double Ldc) {
     this->target_node = 0;
 }
 
+PurePursuit::PurePursuit() {}
+
+PurePursuit::~PurePursuit() {}
+
 void PurePursuit::purepursuit_control(std::vector<Path> refPoses, double target_v, double x, double y, double yaw, double v) {
     this->target_speed = target_v;
     this->refPoses = refPoses;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "msg_structs.h"
+#include "utils/msg_structs.h"
 
 #include "controller/pure_pursuit.hpp"
 

@@ -1,7 +1,7 @@
-#include "control.h"
+#include "control.hpp"
 
-Control::Control() : rclcpp::Node("vehicle_control"), controller(15, 0.5, 10.0) {
-    // this->controller = PurePursuit(2.7, 0.5, 4.0);
+Control::Control() : rclcpp::Node("vehicle_control") {
+    this->controller = PurePursuit(2.7, 0.5, 4.0);
 
     // Subscribe
     path_subscription_ = this->create_subscription<nav_msgs::msg::Path>(
@@ -28,7 +28,7 @@ void Control::path_callback(const nav_msgs::msg::Path::SharedPtr path_msg) {
     for (size_t i = 0; i < path_msg->poses.size(); ++i) {
         refPose.x = path_msg->poses[i].pose.position.x;
         refPose.y = path_msg->poses[i].pose.position.y;
-        // refPose.yaw = this->quat_to_yaw(path_msg->poses[i].pose.orientation);
+        refPose.yaw = this->quat_to_yaw(path_msg->poses[i].pose.orientation);
         this->refPoses.push_back(refPose);
     }
     this->pathValid = true;
@@ -74,7 +74,7 @@ void Control::publisher_timer_callback() {
 
 void Control::publish_drive(float speed, float steer) {
     auto drive_msg = std::make_unique<geometry_msgs::msg::Twist>();
-    drive_msg->linear.x = speed;
+    drive_msg->linear.x = speed * 0.8;
     drive_msg->angular.z = steer;
     std::cout << "Publish Throttle : " << speed << " Publish Steering : " << steer << std::endl;
     this->drive_publisher_->publish(std::move(drive_msg));
