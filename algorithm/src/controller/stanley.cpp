@@ -2,6 +2,9 @@
 
 Stanley::Stanley(std::vector<std::vector<double>> route, double resolution, double speed, std::vector<double> cpoint,
                 double k, double ks) {
+    // Vehicle Config
+    this->WB = this->car.WB/resolution;
+
     // Vehicle Status
     this->x = cpoint[0];
     this->y = cpoint[1];
@@ -18,9 +21,6 @@ Stanley::Stanley(std::vector<std::vector<double>> route, double resolution, doub
     this->kp = this->car.kp;
     // this->ki = this->car.ki;
     // this->kd = this->car.kd;
-
-    // Vehicle Config
-    this->WB = this->car.WB/resolution;
 
     // System Config
     this->dt = 0.1;

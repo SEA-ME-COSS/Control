@@ -2,7 +2,7 @@
 #include "map/hybrid_astar_map.hpp"
 #include "hybrid-a-star/a_star.hpp"
 
-#include "controller/pure_pursuit.hpp"
+// #include "controller/pure_pursuit.hpp"
 #include "controller/stanley.hpp"
 
 #include "utils/matplotlibcpp.h"
@@ -60,8 +60,8 @@ int main() {
     // std::vector<std::vector<double>> control_path = purepursuit.getTrajectory();
     // std::vector<int> target_nodes = purepursuit.getTargetnode();
 
-    double k = 0.2;
-    double ks = 1.0;
+    double k = 10.0;
+    double ks = 20.0;
 
     auto stanley = Stanley(route, resolution, speed, cpoint, k, ks);
     stanley.stanley_control();
@@ -115,21 +115,21 @@ int main() {
         // Show path
         plt::plot(path_x, path_y, "r-");
 
-        // Show Control
-        if(i < control_path.size()) {
-            std::vector<int> path_x = {static_cast<int>(control_path[i][0])};
-            std::vector<int> path_y = {static_cast<int>(control_path[i][1])};
-            plt::plot(path_x, path_y, "bo");
-        }
+        // // Show Control
+        // if(i < control_path.size()) {
+        //     std::vector<int> path_x = {static_cast<int>(control_path[i][0])};
+        //     std::vector<int> path_y = {static_cast<int>(control_path[i][1])};
+        //     plt::plot(path_x, path_y, "bo");
+        // }
 
-        if(i < target_nodes.size()) {
-            int target_node_index = target_nodes[i];
-            if(target_node_index < route.size()) {
-                std::vector<int> target_x = {static_cast<int>(route[target_node_index][0])};
-                std::vector<int> target_y = {static_cast<int>(route[target_node_index][1])};
-                plt::plot(target_x, target_y, "go");
-            }
-        }
+        // if(i < target_nodes.size()) {
+        //     int target_node_index = target_nodes[i];
+        //     if(target_node_index < route.size()) {
+        //         std::vector<int> target_x = {static_cast<int>(route[target_node_index][0])};
+        //         std::vector<int> target_y = {static_cast<int>(route[target_node_index][1])};
+        //         plt::plot(target_x, target_y, "go");
+        //     }
+        // }
 
         plt::pause(0.01);
     }

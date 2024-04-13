@@ -1,7 +1,7 @@
 #include "control.hpp"
 
 Control::Control() : rclcpp::Node("vehicle_control") {
-    this->controller = PurePursuit(2.7, 0.5, 4.0);
+    this->controller = PurePursuit(2.7, 1.0, 10.0);
 
     // Subscribe
     path_subscription_ = this->create_subscription<nav_msgs::msg::Path>(
@@ -74,7 +74,7 @@ void Control::publisher_timer_callback() {
 
 void Control::publish_drive(float speed, float steer) {
     auto drive_msg = std::make_unique<geometry_msgs::msg::Twist>();
-    drive_msg->linear.x = speed * 0.8;
+    drive_msg->linear.x = speed * 0.737;
     drive_msg->angular.z = steer;
     std::cout << "Publish Throttle : " << speed << " Publish Steering : " << steer << std::endl;
     this->drive_publisher_->publish(std::move(drive_msg));

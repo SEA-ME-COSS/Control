@@ -2,7 +2,7 @@
 
 Control::Control() : rclcpp::Node("vehicle_control") {
     double k = 0.5;
-    double ks = 1.0;
+    double ks = 10.0;
 
     this->controller = Stanley(k, ks);
 
@@ -76,7 +76,7 @@ void Control::publisher_timer_callback() {
 
 void Control::publish_drive(float speed, float steer) {
     auto drive_msg = std::make_unique<geometry_msgs::msg::Twist>();
-    drive_msg->linear.x = speed;
+    drive_msg->linear.x = speed*0.737;
     drive_msg->angular.z = steer;
     // std::cout << "Publish Throttle : " << speed << " Publish Steering : " << steer << std::endl;
     this->drive_publisher_->publish(std::move(drive_msg));
