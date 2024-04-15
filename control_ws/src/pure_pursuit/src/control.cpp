@@ -65,7 +65,8 @@ void Control::publisher_timer_callback() {
 
     this->controller.purepursuit_control(this->refPoses, this->target_velocity, this->currPose.x, this->currPose.y, this->currPose.yaw, this->currPose.v);
 
-    this->speedCommand = this->controller.getThrottle();
+    // this->speedCommand = this->controller.getThrottle();
+    this->speedCommand = 0.5;
     // this->steerCommand = - this->controller.getDelta() * 180 / M_PI;
     this->steerCommand = this->controller.getDelta();
 
@@ -74,7 +75,7 @@ void Control::publisher_timer_callback() {
 
 void Control::publish_drive(float speed, float steer) {
     auto drive_msg = std::make_unique<geometry_msgs::msg::Twist>();
-    drive_msg->linear.x = speed * 0.737;
+    drive_msg->linear.x = speed;
     drive_msg->angular.z = steer;
     std::cout << "Publish Throttle : " << speed << " Publish Steering : " << steer << std::endl;
     this->drive_publisher_->publish(std::move(drive_msg));

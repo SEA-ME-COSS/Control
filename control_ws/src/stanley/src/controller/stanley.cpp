@@ -36,9 +36,9 @@ void Stanley::stanley_control(std::vector<Path> refPoses, double target_v, doubl
     this->target_speed = target_v;
     this->refPoses = refPoses;
     this->update_state(x, y, yaw, v);
-    std::cout << "Current Speed : " << this->v << " Current accerleration : " << this->acceleration << std::endl;
+    std::cout << "Current Speed : " << this->v << " Current accerleration : " << this->acceleration << " Target Speed : " << target_v << std::endl;
 
-    this->acceleration = this->pid_speed_control();
+    // this->acceleration = this->pid_speed_control();
     this->update_target_node();
     this->delta = this->stanley_steer_calc();
     this->stanley_throttle_calc();
@@ -117,8 +117,8 @@ double Stanley::pi_2_pi(double angle) {
 }
 
 void Stanley::stanley_throttle_calc() {
-    this->v += this->acceleration * this->dt;
-    // std::cout << "Accerleration : " << this->acceleration << " V: " << this->v << std::endl;
+    // this->v += this->acceleration * this->dt;
+    this->v = this->target_speed;
 } 
 
 bool Stanley::isNearby(std::vector<double> cpoint, std::vector<double> target_point) {

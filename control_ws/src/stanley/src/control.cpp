@@ -1,8 +1,8 @@
 #include "control.hpp"
 
 Control::Control() : rclcpp::Node("vehicle_control") {
-    double k = 0.5;
-    double ks = 10.0;
+    double k = 1.5;
+    double ks = 70.2;
 
     this->controller = Stanley(k, ks);
 
@@ -39,14 +39,15 @@ void Control::path_callback(const nav_msgs::msg::Path::SharedPtr path_msg) {
 
 void Control::velocity_callback(const example_interfaces::msg::Float64::SharedPtr velocity_msg) {
     this->velocityValid = false;
+    std::cout << "target speed : " << velocity_msg->data << std::endl;
     this->target_velocity = velocity_msg->data;
     this->velocityValid = true;
 }
 
 void Control::pose_callback(const nav_msgs::msg::Odometry::SharedPtr pose_msg) {
     this->poseValid = false;
-    this->currPose.x = pose_msg->pose.pose.position.x * 100 + 22.656;  // [cm]
-    this->currPose.y = pose_msg->pose.pose.position.y * 100 + 47.281;  // [cm]
+    this->currPose.x = pose_msg->pose.pose.position.x * 100 + 33;  // [cm]
+    this->currPose.y = pose_msg->pose.pose.position.y * 100 + 50;  // [cm]
     
     tf2::Quaternion q(
       pose_msg->pose.pose.orientation.x,
@@ -69,16 +70,23 @@ void Control::publisher_timer_callback() {
     this->controller.stanley_control(this->refPoses, this->target_velocity, this->currPose.x, this->currPose.y, this->currPose.yaw, this->currPose.v);
 
     this->speedCommand = this->controller.getThrottle();
+    // this->speedCommand = 0.5;
     this->steerCommand = this->controller.getDelta();
+
+    Path lastRefPose = this->refPoses.back();
+    if ((std::pow(this->currPose.x - lastRefPose.x, 2) + std::pow(this->currPose.y - lastRefPose.y, 2)) < 40.0) {
+        std::cout << "Finished!!!" << std::endl;
+        this->speedCommand = 0.0;
+    }
 
     this->publish_drive(this->speedCommand, this->steerCommand);
 }
 
 void Control::publish_drive(float speed, float steer) {
     auto drive_msg = std::make_unique<geometry_msgs::msg::Twist>();
-    drive_msg->linear.x = speed*0.737;
+    drive_msg->linear.x = speed;
     drive_msg->angular.z = steer;
-    // std::cout << "Publish Throttle : " << speed << " Publish Steering : " << steer << std::endl;
+    std::cout << "Publish Throttle : " << speed << " Publish Steering : " << steer << std::endl;
     this->drive_publisher_->publish(std::move(drive_msg));
 }
 
