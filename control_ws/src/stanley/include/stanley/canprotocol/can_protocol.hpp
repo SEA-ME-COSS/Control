@@ -16,20 +16,19 @@
 #include <unordered_map>
 #include <memory>
 #include <chrono>
+#include <string>
+#include <unordered_map>
 
-class CANReceiver {
+class CANSender {
 public:
-    CANReceiver(const std::string& dbc_file, const std::string& can_interface);
-    ~CANReceiver();
-    void receiveMessages();
+    CANSender(const std::string& dbc_file, const std::string& can_interface);
+    ~CANSender();
 
 private:
-    void printMessage(const dbcppp::IMessage& msg, const can_frame& frame);
-
-    std::unique_ptr<dbcppp::INetwork> net;
-    std::unordered_map<uint64_t, const dbcppp::IMessage*> messages;
     int sock;
-    uint64_t last_received;
-    std::chrono::time_point<std::chrono::steady_clock> last_received_time;
-    std::chrono::seconds message_timeout;
+    uint64_t target_message_id;
+    double speed_value;
+    std::shared_ptr<const dbcppp::INetwork> net;
+    std::unordered_map<uint64_t, const dbcppp::IMessage*> messages;
 };
+
