@@ -6,6 +6,9 @@ Control::Control() : rclcpp::Node("vehicle_control") {
 
     this->controller = Stanley(k, ks);
 
+    // Initialize CAN receiver
+    this->can_receiver = std::make_unique<CANReceiver>("../example.dbc", "vcan0");
+
     // Subscribe
     path_subscription_ = this->create_subscription<nav_msgs::msg::Path>(
         "/pathplanner/path", 10, std::bind(&Control::path_callback, this,  std::placeholders::_1));
@@ -80,6 +83,8 @@ void Control::publisher_timer_callback() {
     }
 
     this->publish_drive(this->speedCommand, this->steerCommand);
+
+    this->can_receiver->receiveMessages();
 }
 
 void Control::publish_drive(float speed, float steer) {

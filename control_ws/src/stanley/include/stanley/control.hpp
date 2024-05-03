@@ -5,6 +5,8 @@
 
 #include "controller/stanley.hpp"
 
+#include "canprotocol/can_protocol.hpp"
+
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "nav_msgs/msg/odometry.hpp"
@@ -24,6 +26,8 @@ public:
 
 private:
     Stanley controller;
+
+    std::unique_ptr<CANReceiver> can_receiver;
 
     std::vector<Path> refPoses;
     Pose currPose;
