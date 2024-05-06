@@ -1,8 +1,6 @@
-// CANReceiver.cpp
-#include "CANReceiver.hpp"
+#include "canprotocol/can_protocol.hpp"
 
-CANSender::CANSender(const std::string& dbc_file, const std::string& can_interface)
-    : target_message_id(255), speed_value(10.0) {
+CANSender::CANSender(const std::string& dbc_file, const std::string& can_interface) {
     std::ifstream idbc(dbc_file);
     this->net = dbcppp::INetwork::LoadDBCFromIs(idbc);
     if (!this->net) {
@@ -10,6 +8,7 @@ CANSender::CANSender(const std::string& dbc_file, const std::string& can_interfa
     }
 
     for (const auto& msg : this->net->Messages()) {
+        std::cout << "Msg ID : " << msg.Id() << std::endl;
         this->messages[msg.Id()] = &msg;
     }
 
@@ -26,6 +25,8 @@ CANSender::CANSender(const std::string& dbc_file, const std::string& can_interfa
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
     bind(this->sock, (struct sockaddr *)&addr, sizeof(addr));
+
+    this->target_message_id = 255;
 }
 
 CANSender::~CANSender() {
@@ -33,16 +34,16 @@ CANSender::~CANSender() {
 }
 
 void CANSender::sendSpeedMessage(double speed) {
-    auto iter = messages.find(target_message_id);
+    std::unordered_map<uint64_t, const dbcppp::IMessage*>::iterator iter = messages.find(target_message_id);
     if (iter == messages.end()) {
         throw std::runtime_error("Message with ID 255 not found in DBC.");
     }
 
-    const auto& msg = *iter->second;
+    const dbcppp::IMessage& msg = *(iter->second);
     std::vector<uint8_t> frame_data(8, 0);
-    for (const auto& sig : msg.Signals()) {
+    for (const dbcppp::ISignal& sig : msg.Signals()) {
         if (sig.Name() == "Speed") {
-            auto raw_value = sig.PhysToRaw(speed);
+            double raw_value = sig.PhysToRaw(speed);
             sig.Encode(raw_value, frame_data.data());
         }
     }
@@ -52,9 +53,9 @@ void CANSender::sendSpeedMessage(double speed) {
     frame.can_dlc = frame_data.size();
     std::memcpy(frame.data, frame_data.data(), frame_data.size());
 
-    int nbytes = write(sock, &frame, sizeof(struct can_frame));
+    ssize_t nbytes = write(sock, &frame, sizeof(struct can_frame));
     if (nbytes != sizeof(struct can_frame)) {
-        std::cerr << "Error while sending frame" << std::endl;
+        throw std::runtime_error("Error while sending frame.");
     } else {
         std::cout << "Message sent successfully: Speed = " << speed << std::endl;
     }

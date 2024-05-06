@@ -1,13 +1,22 @@
 cmake_minimum_required(VERSION 3.5)
 project(stanley)
 
-# 기본 C++20 설정
+# Default to C99
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
+
+# Default to C20
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+if(POLICY CMP0148)
+  cmake_policy(SET CMP0148 OLD)
 endif()
 
 # ROS 2 패키지 의존성 찾기
@@ -19,29 +28,25 @@ find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(example_interfaces REQUIRED)
 
-include(ExternalProject)
-# ExternalProject_Add을 사용하여 dbcppp 라이브러리 빌드
-ExternalProject_Add(dbcppp_build
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/stanley/dbcppp
-  BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/stanley/dbcppp/build
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} ..
-  BUILD_COMMAND ${MAKE}
-  INSTALL_COMMAND ""
-  TEST_COMMAND ""
-)
+find_package(Boost REQUIRED)
+
+ament_package()
 
 include_directories(
   include/${PROJECT_NAME}
-  include/stanley/dbcppp/include # dbcppp 헤더 파일 위치
+  include/${PROJECT_NAME}/dbcppp/src
+  include/${PROJECT_NAME}/dbcppp/include
 )
+
+FILE(GLOB CANProtocol include/${PROJECT_NAME}/dbcppp/src/*.cpp)
 
 add_executable(${PROJECT_NAME}
   src/main.cpp
   src/control.cpp
   src/controller/stanley.cpp
+  src/canprotocol/can_protocol.cpp
+  ${CANProtocol}
 )
-
-add_dependencies(${PROJECT_NAME} dbcppp_build) # dbcppp가 먼저 빌드되도록 의존성 추가
 
 ament_target_dependencies(${PROJECT_NAME} 
   rclcpp
@@ -57,4 +62,6 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-ament_package()
+target_link_libraries(${PROJECT_NAME}
+  ${Boost}
+)
