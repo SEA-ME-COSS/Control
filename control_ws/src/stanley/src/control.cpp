@@ -84,7 +84,8 @@ void Control::publisher_timer_callback() {
 
     this->publish_drive(this->speedCommand, this->steerCommand);
 
-    this->can_sender->sendSpeedMessage(this->speedCommand);
+    this->can_sender->sendSpeedMessage(this->speedCommand, 0);
+    this->can_sender->sendSteerMessage(this->steerCommand, 1);
 }
 
 void Control::publish_drive(float speed, float steer) {
