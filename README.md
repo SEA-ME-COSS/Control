@@ -1,5 +1,7 @@
 # About
 
+<img src=/images/Architecture_Control.png alt="Architecture_Control" width="100%" height="100%"/>
+
 This repository is for the Control part of an Autonomous Driving System. It subscribes to paths, current pose and velocities via ROS2, and publishes the vehicle's throttle and steering values. For lateral control, it uses the pure pursuit and stanley algorithms, while for longitudinal control, it employs a PID algorithm. If you're interested in a detailed usage of these algorithms, visit the following repository to test them out.
 
 # Requirements
